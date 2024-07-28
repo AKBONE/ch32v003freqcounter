@@ -1,0 +1,42 @@
+情報: ファイル '/home/nanbuwks/00storage/KiCad/FreqCounter3203/github/kicad/sym-lib-table' をファイル '/home/nanbuwks/00storage/KiCad/FreqCounter3203/github/kicad/rescue-backup/sym-lib-table-2024-07-25-21-31-20' にバックアップしています。
+情報: ファイル '/home/nanbuwks/00storage/KiCad/FreqCounter3203/github/kicad/FreqCounter3203.sch' をファイル '/home/nanbuwks/00storage/KiCad/FreqCounter3203/github/kicad/rescue-backup/FreqCounter3203-2024-07-25-21-31-20.sch' にバックアップしています。
+情報: ファイル '/home/nanbuwks/00storage/KiCad/FreqCounter3203/github/kicad/FreqCounter3203.kicad_pro' をファイル '/home/nanbuwks/00storage/KiCad/FreqCounter3203/github/kicad/rescue-backup/FreqCounter3203-2024-07-25-21-31-20.kicad_pro' にバックアップしています。
+情報: ファイル '/home/nanbuwks/00storage/KiCad/FreqCounter3203/github/kicad/FreqCounter3203-cache.lib' をファイル '/home/nanbuwks/00storage/KiCad/FreqCounter3203/github/kicad/rescue-backup/FreqCounter3203-cache-2024-07-25-21-31-20.lib' にバックアップしています。
+情報: ファイル '/home/nanbuwks/00storage/KiCad/FreqCounter3203/github/kicad/FreqCounter3203-rescue.lib' をファイル '/home/nanbuwks/00storage/KiCad/FreqCounter3203/github/kicad/rescue-backup/FreqCounter3203-rescue-2024-07-25-21-31-20.lib' にバックアップしています。
+情報: ファイル '/home/nanbuwks/00storage/KiCad/FreqCounter3203/github/kicad/FreqCounter3203-rescue.dcm' をファイル '/home/nanbuwks/00storage/KiCad/FreqCounter3203/github/kicad/rescue-backup/FreqCounter3203-rescue-2024-07-25-21-31-20.dcm' にバックアップしています。
+情報: ライブラリ 'FreqCounter3203-rescue' , ファイル '${KIPRJMOD}/FreqCounter3203-rescue.lib' をプロジェクトのシンボル ライブラリ テーブルへ追加します。
+シンボル 'CONN_01X06' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'DIODESCH' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'SWITCH_INV' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'Battery' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'CONN_02X03' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'Battery' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'SW_PUSH' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'SW_PUSH' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'C' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'PhotoReciever_GP1USC4XQS_SHARP' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'GND' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'R' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'SW_PUSH' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'SW_PUSH' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル '+3.3V' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'R' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'GND' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'GND' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル '+3.3V' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'STM32F103C8T6MinimumDevelopBoard-RESCUE-nodrinknohack' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'SPEAKER' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'GND' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'SW_PUSH' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'GND' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル '+3.3V' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'OLED_0.96in_SPI' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'R' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'LED' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'GND' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'SW_PUSH' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル 'R' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+シンボル '+3.3V' はシンボル ライブラリ 'FreqCounter3203-rescue' にマップされました。
+情報: シンボル ライブラリ テーブルのマッピングを完了!
+情報: プロジェクトのシンボル ライブラリ テーブルを作成しました。
+

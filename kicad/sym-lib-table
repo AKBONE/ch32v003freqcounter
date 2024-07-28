@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 0)
+  (lib (name "FreqCounter3203-rescue")(type "Legacy")(uri "${KIPRJMOD}/FreqCounter3203-rescue.lib")(options "")(descr ""))
+)
