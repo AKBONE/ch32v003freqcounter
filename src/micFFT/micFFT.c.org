@@ -1,0 +1,106 @@
+// what type of OLED - uncomment just one
+//#define SSD1306_64X32
+//#define SSD1306_128X32
+#define SSD1306_128X64
+
+#include "ch32v003fun.h"
+#include <stdio.h>
+#include <stdlib.h> 
+
+#define GPIO_ADC_MUX_DELAY 100
+#define GPIO_ADC_sampletime GPIO_ADC_sampletime_43cy
+#include "ch32v003_GPIO_branchless.h"
+#include "ssd1306_i2c.h"
+#include "ssd1306.h"
+
+#define LED_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 6)
+#define ADC_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 4)
+
+
+
+void init_gpio()
+{
+    // 各GPIOの有効化
+    GPIO_port_enable(GPIO_port_D);
+    // 各ピンの設定
+    GPIO_pinMode(LED_PIN, GPIO_pinMode_O_pushPull, GPIO_Speed_10MHz);
+    GPIO_pinMode(ADC_PIN, GPIO_pinMode_I_analog, GPIO_Speed_10MHz);
+	GPIO_ADCinit();
+}
+void reverse_str(char* str, size_t len) {
+    size_t start = 0;
+    size_t end = len - 1;
+    while (start < end) {
+        char temp = str[start];
+        str[start] = str[end];
+        str[end] = temp;
+        start++;
+        end--;
+    }
+}
+
+void uint16_to_string(uint16_t value, char* str, size_t str_size) {
+    size_t index = 0;
+    if (value == 0) {
+        if (str_size > 1) {
+            str[index++] = '0';
+        }
+    } else {
+        while (value != 0 && index < str_size - 1) {
+            str[index++] = (value % 10) + '0';
+            value /= 10;
+        }
+    }
+    str[index] = '\0';
+    reverse_str(str, index);
+}
+
+int main()
+{
+	SystemInit();
+	// Enable GPIOs
+	//funGpioInitAll();
+	init_gpio();
+	ssd1306_i2c_init();
+	ssd1306_init();
+	// clear buffer for next mode
+	ssd1306_setbuf(0);
+	Delay_Ms( 1000 );
+	//ssd1306_drawstr_sz(0,0, "sz 8x8", 1, fontsize_8x8);
+	ssd1306_drawstr_sz(0,16, "16x16", 1, fontsize_16x16);
+	printf("mic FFT Test Start\n\r");
+
+	//ssd1306_drawLine(0, 0, SSD1306_W, 0, 1);
+	//ssd1306_drawstr(0,0, "mic FFT Test", 1);
+	//ssd1306_refresh();
+	//funPinMode( PD0, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP );
+	//funPinMode( PD4, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP );
+	//funPinMode( PD6, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP );
+	//funPinMode( PC0, GPIO_Speed_10MHz | GPIO_CNF_OUT_PP );
+
+	long time = 0;
+	char buf[16];
+	while(1)
+	{
+		ssd1306_setbuf(0);
+		int val = GPIO_analogRead(GPIO_Ain7_D4);
+		uint16_to_string(val, buf, sizeof(buf));
+		ssd1306_drawstr_sz(0,0, buf, 1, fontsize_16x16);
+//		printf("time = %ld, adc = %d\n", time++, val);
+//		printf("adc = %d\n", val);
+
+	//	GPIO_digitalWrite(LED_PIN, high);
+	//	funDigitalWrite( PD0, FUN_HIGH );
+	//	funDigitalWrite( PD4, FUN_HIGH );
+	//	funDigitalWrite( PD6, FUN_HIGH );
+	//	funDigitalWrite( PC0, FUN_HIGH );
+	//	Delay_Ms( 500 );
+	//	GPIO_digitalWrite(LED_PIN, low);
+	//	funDigitalWrite( PD0, FUN_LOW );
+	//	funDigitalWrite( PD4, FUN_LOW );
+	//	funDigitalWrite( PD6, FUN_LOW );
+	//	funDigitalWrite( PC0, FUN_LOW );
+		ssd1306_refresh();
+		Delay_Ms( 1 );
+	}
+}
