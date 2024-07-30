@@ -23,7 +23,7 @@ The main components are soldered at the factory during manufacturing. The remain
 
 With its small footprint and fast screen display, it can be used as a small signage.
 
-# Curcit
+# Circuit
 
 ## Schematic
 
