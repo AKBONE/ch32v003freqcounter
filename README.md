@@ -23,9 +23,15 @@ The main components are soldered at the factory during manufacturing. The remain
 
 With its small footprint and fast screen display, it can be used as a small signage.
 
-# Schematic
+# Curcit
+
+## Schematic
 
 ![image](https://github.com/user-attachments/assets/f9bb966e-5fb7-449d-bd39-e4527e4bff9e)
+
+## artdesign
+![image](https://github.com/user-attachments/assets/651a34eb-79ba-451a-b981-b10114599e5b)
+
 
 
 # pin assign
