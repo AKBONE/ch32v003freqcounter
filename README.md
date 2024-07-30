@@ -83,3 +83,8 @@ With its small footprint and fast screen display, it can be used as a small sign
 |------------------|------|---------|------|
 |                  |      | 1       | GND  |
 | 19               | PD2  | 2       | IN   |
+
+# License
+
+Public Domain ((cc0)
+However, libraries used are subject to individual licenses.
