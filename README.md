@@ -41,7 +41,7 @@ With its small footprint and fast screen display, it can be used as a small sign
 |                  |           | 1        | GND  |
 |                  |           | 2        | 3.3V |
 | 15               |           | 3        | D0   |
-| 16               | MOSIS       | 4        | D1   |
+| 16               | MOSI       | 4        | D1   |
 | 17               | PC7(MISO) | 5        | RST  |
 | 14               | PC4      | 6        | DC   |
 | 13               | PC3       | 7        | CS   |
