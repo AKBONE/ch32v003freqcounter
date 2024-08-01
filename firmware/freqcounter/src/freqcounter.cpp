@@ -35,6 +35,8 @@ uint16_t sampling_period_us;
 int8_t vReal[SAMPLES];
 int8_t vImag[SAMPLES];
 
+uint8_t mode = 0;
+
 void setup()
 {
     // 各GPIOの有効化
@@ -42,7 +44,7 @@ void setup()
     GPIO_port_enable(GPIO_port_C);
     // 各ピンの設定
     GPIO_pinMode(ADC_PIN, GPIO_pinMode_I_analog, GPIO_Speed_10MHz);
-    GPIO_pinMode(SW1_PIN, GPIO_pinMode_I_pullUp, GPIO_Speed_10MHz);
+    GPIO_pinMode(SW1_PIN, GPIO_pinMode_I_pullUp, GPIO_Speed_10MHz); /// GPIO_Speed_In? @see https://github.com/cnlohr/ch32v003fun/blob/master/examples/GPIO/GPIO.c#L55
     GPIO_pinMode(SW2_PIN, GPIO_pinMode_I_pullUp, GPIO_Speed_10MHz);
     GPIO_pinMode(SW3_PIN, GPIO_pinMode_I_pullUp, GPIO_Speed_10MHz);
 	GPIO_ADCinit();
@@ -54,7 +56,85 @@ void setup()
 	ssd1306_drawstr_sz(0, 24, "FrequencyCounter", 1, fontsize_8x8);
 	ssd1306_drawstr_sz(0, 40, "   Version 1.0  ", 1, fontsize_8x8);
 	ssd1306_refresh();
+}
 
+void alertNotImpl() {
+	ssd1306_setbuf(0);		// Clear Screen
+	ssd1306_drawstr_sz(0, 24, "      Not       ", 1, fontsize_8x8);
+	ssd1306_drawstr_sz(0, 40, "  Implemented!  ", 1, fontsize_8x8);
+	ssd1306_refresh();
+	Delay_Ms(1000);
+}
+
+void drawIcon(uint8_t *data, uint8_t size, uint8_t x_base, uint8_t y_base, uint8_t color) {
+	for (uint8_t i = 0; i < size; i++) {
+		for (uint8_t j = 0; j < size; j++) {
+			uint8_t pixel = *(data + i * size + j);
+			bool _color = (color && pixel) || (!color && !pixel);
+			ssd1306_drawPixel(x_base + j, y_base + i, _color);
+		}
+	}
+}
+
+void drawNoteIcon(uint8_t x_base, uint8_t y_base, uint8_t color) {
+	uint8_t data[8][8] = {
+		{0, 0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 0, 1, 1, 0, 0},
+		{0, 0, 0, 0, 1, 1, 1, 0},
+		{0, 0, 0, 0, 1, 0, 1, 1},
+		{0, 0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 1, 1, 1, 0, 0, 0},
+		{0, 1, 1, 1, 1, 0, 0, 0},
+		{0, 0, 1, 1, 0, 0, 0, 0},
+	};
+
+	drawIcon((uint8_t*) data, 8, x_base, y_base, color);
+}
+
+uint8_t showInitMenu() {
+	uint8_t mode = 0;
+
+	while(1) {
+		ssd1306_setbuf(0);	// Clear Screen
+		ssd1306_drawstr_sz(0,  0, "30-6000Hz", !(mode == 0), fontsize_8x8);
+		ssd1306_drawstr_sz(0, 16, "900-1100Hz", !(mode == 1), fontsize_8x8);
+		// ssd1306_drawstr_sz(0, 24, "tone", !(mode == 2), fontsize_8x8); // ♪
+		drawNoteIcon(0, 24 + 4, !(mode == 2));
+		ssd1306_drawstr_sz(0, 40, "real time", !(mode == 3), fontsize_8x8); // ～
+		ssd1306_drawstr_sz(0, 56, "QR code", !(mode == 4), fontsize_8x8);
+		ssd1306_refresh();
+
+		if (!GPIO_digitalRead(SW1_PIN)) {
+			printf("SW1: OK\n");
+			if (mode == 0) {
+				break;
+			} else {
+				alertNotImpl();
+			}
+		}
+
+		if (!GPIO_digitalRead(SW2_PIN)) {
+			printf("SW2: Up\n");
+			if (mode <= 0) {
+				mode = 4;
+			} else {
+				mode--;
+			}
+		}
+
+		if (!GPIO_digitalRead(SW3_PIN)) {
+			printf("SW3: Down\n");
+			if (mode >= 4) {
+				mode = 0;
+			} else {
+				mode++;
+			}
+		}
+
+		Delay_Ms(100);
+	}
+
+	return mode;
 }
 
 int main()
@@ -68,6 +148,8 @@ int main()
 
 	Delay_Ms( 2000 );
 	printf("Frequency Counter Start\n\r");
+
+	mode = showInitMenu();
 
 	while(1) {
 		ssd1306_setbuf(0);	// Clear Screen
