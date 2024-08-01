@@ -26,7 +26,7 @@
 #define SW1_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 0)
 #define SW2_PIN GPIOv_from_PORT_PIN(GPIO_port_C, 0)
 #define SW3_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 4)
-#define ADC_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 4)
+#define ADC_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 3)
 
 #define SAMPLES 256 // 2の累乗である必要があります
 #define SAMPLING_FREQUENCY 6000
@@ -73,7 +73,7 @@ int main()
 		ssd1306_setbuf(0);	// Clear Screen
 		for (int i = 0; i < SAMPLES; i++) {
 			unsigned long t = micros();
-			vReal[i] = (GPIO_analogRead(GPIO_Ain7_D4) - 408) >> 2;
+			vReal[i] = (GPIO_analogRead(GPIO_Ain4_D3) - 408) >> 2;
 			vImag[i] = 0; // Imaginary partは0に初期化
 			while ((micros() - t) < sampling_period_us);
 		}
