@@ -114,6 +114,7 @@ uint8_t showInitMenu() {
 			{
 				case 0:
 				case 2:
+				case 3:
 					return mode;
 
 				default:
@@ -299,6 +300,151 @@ int loopModeTone() {
 	}
 }
 
+void TimerInit_ModeRealtime(void) {
+	// タイマークロックの有効化
+	RCC->APB1PCENR |= RCC_APB1Periph_TIM2;
+
+	// タイマーのリセット
+	TIM2->CTLR1 = 0;  // コントロールレジスタをリセット
+	TIM2->PSC = 48000 - 1;  // プリスケーラを48000に設定（48 MHzクロックを1 kHzに分周）
+	TIM2->ATRLR = 0xFFFF;  // 自動リロードレジスタを最大値に設定
+
+	// タイマーのスタート
+	TIM2->CTLR1 |= 0x01;  // タイマーを有効にする (TIM_CTLR1_CENの代わりにビット0を直接設定)
+}
+
+// ミリ秒単位での経過時間を取得
+uint16_t millis_ModeRealtime(void) {
+	return TIM2->CNT;
+}
+
+void setupModeRealtime()
+{
+	// 各GPIOの有効化
+	GPIO_port_enable(GPIO_port_D);
+	// 各ピンの設定
+	GPIO_pinMode(ADC_PIN, GPIO_pinMode_I_analog, GPIO_Speed_10MHz);
+	GPIO_ADCinit();
+	sampling_period_us = 1000000 / SAMPLING_FREQUENCY;
+}
+
+int loopModeRealtime() {
+	char buf[16];
+	uint16_t val;
+	unsigned long t;
+
+	uint8_t mode;
+	uint32_t wait;
+	uint32_t dt;
+	uint16_t max;
+
+	mode = 0;
+	wait = 100;
+	dt = 0;
+	max = 1023;
+
+	t = millis_ModeRealtime();
+
+	while(1) {
+		if ((millis_ModeRealtime() - t) > wait) {
+			t = millis_ModeRealtime();
+			ssd1306_setbuf(0);	// Clear Screen
+
+			for (int i = 0; i < 128; i++) {
+				if (dt) {
+					Delay_Us(dt);
+				}
+				val = GPIO_analogRead(GPIO_Ain4_D3);
+				// val /= (int) ceil((max + 1) / 48.0);
+				// val = floor(val / (max / 48.0));
+				val = (int) (val / (max / 48.0));
+				val = (val < 48) ? val : 48;
+				ssd1306_drawFastVLine(i, 63 - val + 1, val + 1, 1);
+			}
+		}
+
+		ssd1306_drawstr_sz(0, 0, "                ", 1, fontsize_8x8);
+
+		switch (mode)
+		{
+			case 0: // wait
+				sprintf(buf, "wait: %u ms", wait);
+			break;
+
+			case 1: // dt
+				sprintf(buf, "dt: %u us", dt);
+			break;
+
+			case 2: // max
+				sprintf(buf, "max: %u", max);
+			break;
+		}
+
+		ssd1306_drawstr_sz(0, 0, buf, 1, fontsize_8x8);
+		ssd1306_refresh();
+
+		if (!GPIO_digitalRead(SW1_PIN)) {
+			// printf("SW1: OK\n");
+			mode = (mode + 1) % 3;
+			Delay_Ms(300);
+		}
+
+		if (!GPIO_digitalRead(SW2_PIN)) {
+			// printf("SW2: Up\n");
+			switch (mode)
+			{
+				case 0: // wait
+					wait += 10;
+				break;
+
+				case 1: // dt
+					dt += 10;
+				break;
+
+				case 2: // max
+				    if (max < (1023 - 10)) {
+						max += 10;
+					} else {
+						max = 1023;
+					}
+				break;
+			}
+			Delay_Ms(100);
+		}
+
+		if (!GPIO_digitalRead(SW3_PIN)) {
+			// printf("SW3: Down\n");
+			switch (mode)
+			{
+				case 0: // wait
+					if (wait > (0 + 10)) {
+						wait -= 10;
+					} else {
+						wait = 0;
+					}
+				break;
+
+				case 1: // dt
+					if (dt > (0 + 10))  {
+						dt -= 10;
+					} else {
+						dt = 0;
+					}
+				break;
+
+				case 2: // max
+				    if (max > (1 + 10)) {
+						max -= 10;
+					} else {
+						max = 1;
+					}
+				break;
+			}
+			Delay_Ms(100);
+		}
+	}
+}
+
 int main()
 {
 	SystemInit();			// ch32v003 sETUP
@@ -327,6 +473,13 @@ int main()
 			setupModeTone();
 			Delay_Ms(500);
 			exitStatus = loopModeTone();
+		break;
+
+		case 3: // realtime
+			TimerInit_ModeRealtime();			// TIM2 Setup
+			setupModeRealtime();
+			Delay_Ms(500);
+			exitStatus = loopModeRealtime();
 		break;
 
 		default:
