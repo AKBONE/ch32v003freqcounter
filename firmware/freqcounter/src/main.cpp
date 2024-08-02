@@ -27,6 +27,7 @@
 #define SW2_PIN GPIOv_from_PORT_PIN(GPIO_port_C, 0)
 #define SW3_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 4)
 #define ADC_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 3)
+#define SPK_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 2)
 
 #define SAMPLES 256 // 2の累乗である必要があります
 #define SAMPLING_FREQUENCY 6000
@@ -112,6 +113,7 @@ uint8_t showInitMenu() {
 			switch (mode)
 			{
 				case 0:
+				case 2:
 					return mode;
 
 				default:
@@ -202,6 +204,101 @@ int loopModeFreqCounter0() {
 	}
 }
 
+void setupModeTone()
+{
+    // 各GPIOの有効化
+    GPIO_port_enable(GPIO_port_D);
+    // 各ピンの設定
+    GPIO_pinMode(SPK_PIN, GPIO_pinMode_O_pushPull, GPIO_Speed_10MHz);
+}
+
+void displayModeTone(double f) {
+	char buf[16];
+
+	if (f) {
+		sprintf(buf, "%dHz", (int) f);
+	} else {
+		sprintf(buf, "MUTE");
+	}
+	ssd1306_setbuf(0);	// Clear Screen
+	// ssd1306_drawstr_sz((6 - strlen(buf)) * 16 + 16, 1, buf, 1, fontsize_16x16);
+	ssd1306_drawstr_sz(0, 28, buf, 1, fontsize_16x16);
+	ssd1306_refresh();
+}
+
+int loopModeTone() {
+	uint8_t midiNoteNum;
+	double f;
+	unsigned int delay;
+	bool dirty;
+
+	midiNoteNum = 69;
+	f = 440.0;
+
+	delay = (1000 * 1000) / (2.0 * f);
+	dirty = false;
+
+	displayModeTone(f);
+
+	while(1) {
+		// f = 440.0 * pow(2.0, (midiNoteNum - 69) / 12.0);
+
+		if (midiNoteNum > 69) {
+			f = 440.0 * (1.0 + (double)(midiNoteNum - 69) / 12);
+		} else if (midiNoteNum < 69) {
+			f = 440.0 / (1.0 - (double)(midiNoteNum - 69) / 12);
+		} else {
+			f = 440.0;
+		}
+
+		if (dirty) {
+			dirty = false;
+			displayModeTone(f);
+			printf("%d\n", midiNoteNum);
+		}
+
+		delay = (1000 * 1000) / (2.0 * f);
+
+		GPIO_digitalWrite(SPK_PIN, high);
+		Delay_Us(delay);
+		GPIO_digitalWrite(SPK_PIN, low);
+		Delay_Us(delay);
+
+		if (!GPIO_digitalRead(SW1_PIN)) {
+			// printf("SW1: OK\n");
+			displayModeTone(0.0);
+			Delay_Ms(300);
+
+			while(GPIO_digitalRead(SW1_PIN));
+
+			displayModeTone(f);
+			Delay_Ms(300);
+		}
+
+		if (!GPIO_digitalRead(SW2_PIN)) {
+			// printf("SW2: Up\n");
+			if (midiNoteNum >= UINT8_MAX) {
+				;
+			} else {
+				midiNoteNum++;
+			}
+			dirty = true;
+			Delay_Ms(100);
+		}
+
+		if (!GPIO_digitalRead(SW3_PIN)) {
+			// printf("SW3: Down\n");
+			if (midiNoteNum <= 0) {
+				;
+			} else {
+				midiNoteNum--;
+			}
+			dirty = true;
+			Delay_Ms(100);
+		}
+	}
+}
+
 int main()
 {
 	SystemInit();			// ch32v003 sETUP
@@ -219,11 +316,17 @@ int main()
 
 	switch (mode)
 	{
-		case 0:
+		case 0: // freqcounter
 			Timer_Init();			// TIM2 Setup
 			setupModeFreqCounter0();
 			// Delay_Ms( 2000 );
 			exitStatus = loopModeFreqCounter0();
+		break;
+
+		case 2: // tone
+			setupModeTone();
+			Delay_Ms(500);
+			exitStatus = loopModeTone();
 		break;
 
 		default:
