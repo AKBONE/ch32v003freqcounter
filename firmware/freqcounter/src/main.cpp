@@ -27,6 +27,7 @@
 #define SW2_PIN GPIOv_from_PORT_PIN(GPIO_port_C, 0)
 #define SW3_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 4)
 #define ADC_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 3)
+#define SPK_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 2)
 
 #define SAMPLES 256 // 2の累乗である必要があります
 #define SAMPLING_FREQUENCY 6000
@@ -35,20 +36,15 @@ uint16_t sampling_period_us;
 int8_t vReal[SAMPLES];
 int8_t vImag[SAMPLES];
 
-uint8_t mode = 0;
-
 void setup()
 {
     // 各GPIOの有効化
     GPIO_port_enable(GPIO_port_D);
     GPIO_port_enable(GPIO_port_C);
     // 各ピンの設定
-    GPIO_pinMode(ADC_PIN, GPIO_pinMode_I_analog, GPIO_Speed_10MHz);
     GPIO_pinMode(SW1_PIN, GPIO_pinMode_I_pullUp, GPIO_Speed_10MHz); /// GPIO_Speed_In? @see https://github.com/cnlohr/ch32v003fun/blob/master/examples/GPIO/GPIO.c#L55
     GPIO_pinMode(SW2_PIN, GPIO_pinMode_I_pullUp, GPIO_Speed_10MHz);
     GPIO_pinMode(SW3_PIN, GPIO_pinMode_I_pullUp, GPIO_Speed_10MHz);
-	GPIO_ADCinit();
-	sampling_period_us = 1000000 / SAMPLING_FREQUENCY;
 
 	ssd1306_spi_init();		// i2c Setup
 	ssd1306_init();			// SSD1306 Setup
@@ -64,6 +60,14 @@ void alertNotImpl() {
 	ssd1306_drawstr_sz(0, 40, "  Implemented!  ", 1, fontsize_8x8);
 	ssd1306_refresh();
 	Delay_Ms(1000);
+}
+
+void alertDefaultError() {
+	ssd1306_setbuf(0);		// Clear Screen
+	ssd1306_drawstr_sz(0, 24, "some error occurrs", 1, fontsize_8x8);
+	ssd1306_drawstr_sz(0, 40, "    Reboot Me!    ", 1, fontsize_8x8);
+	ssd1306_refresh();
+	while(1);
 }
 
 void drawIcon(uint8_t *data, uint8_t size, uint8_t x_base, uint8_t y_base, uint8_t color) {
@@ -106,10 +110,15 @@ uint8_t showInitMenu() {
 
 		if (!GPIO_digitalRead(SW1_PIN)) {
 			printf("SW1: OK\n");
-			if (mode == 0) {
+			switch (mode)
+			{
+				case 0:
+				case 2:
+					return mode;
+
+				default:
+					alertNotImpl();
 				break;
-			} else {
-				alertNotImpl();
 			}
 		}
 
@@ -133,23 +142,20 @@ uint8_t showInitMenu() {
 
 		Delay_Ms(100);
 	}
-
-	return mode;
 }
 
-int main()
+void setupModeFreqCounter0()
 {
+    // 各GPIOの有効化
+    GPIO_port_enable(GPIO_port_D);
+    // 各ピンの設定
+    GPIO_pinMode(ADC_PIN, GPIO_pinMode_I_analog, GPIO_Speed_10MHz);
+	GPIO_ADCinit();
+	sampling_period_us = 1000000 / SAMPLING_FREQUENCY;
+}
+
+int loopModeFreqCounter0() {
 	char buf[16];
-
-	SystemInit();			// ch32v003 sETUP
-	Timer_Init();			// TIM2 Setup
-	
-	setup();				// gpio Setup;
-
-	Delay_Ms( 2000 );
-	printf("Frequency Counter Start\n\r");
-
-	mode = showInitMenu();
 
 	while(1) {
 		ssd1306_setbuf(0);	// Clear Screen
@@ -195,5 +201,145 @@ int main()
 
 		ssd1306_drawstr_sz((6 - strlen(buf)) * 16 + 16, 1, buf, 1, fontsize_16x16);
 		ssd1306_refresh();
+	}
+}
+
+void setupModeTone()
+{
+    // 各GPIOの有効化
+    GPIO_port_enable(GPIO_port_D);
+    // 各ピンの設定
+    GPIO_pinMode(SPK_PIN, GPIO_pinMode_O_pushPull, GPIO_Speed_10MHz);
+}
+
+void displayModeTone(double f) {
+	char buf[16];
+
+	if (f) {
+		sprintf(buf, "%dHz", (int) f);
+	} else {
+		sprintf(buf, "MUTE");
+	}
+	ssd1306_setbuf(0);	// Clear Screen
+	// ssd1306_drawstr_sz((6 - strlen(buf)) * 16 + 16, 1, buf, 1, fontsize_16x16);
+	ssd1306_drawstr_sz(0, 28, buf, 1, fontsize_16x16);
+	ssd1306_refresh();
+}
+
+int loopModeTone() {
+	uint8_t midiNoteNum;
+	double f;
+	unsigned int delay;
+	bool dirty;
+
+	midiNoteNum = 69;
+	f = 440.0;
+
+	delay = (1000 * 1000) / (2.0 * f);
+	dirty = false;
+
+	displayModeTone(f);
+
+	while(1) {
+		// f = 440.0 * pow(2.0, (midiNoteNum - 69) / 12.0);
+
+		if (midiNoteNum > 69) {
+			f = 440.0 * (1.0 + (double)(midiNoteNum - 69) / 12);
+		} else if (midiNoteNum < 69) {
+			f = 440.0 / (1.0 - (double)(midiNoteNum - 69) / 12);
+		} else {
+			f = 440.0;
+		}
+
+		if (dirty) {
+			dirty = false;
+			displayModeTone(f);
+			printf("%d\n", midiNoteNum);
+		}
+
+		delay = (1000 * 1000) / (2.0 * f);
+
+		GPIO_digitalWrite(SPK_PIN, high);
+		Delay_Us(delay);
+		GPIO_digitalWrite(SPK_PIN, low);
+		Delay_Us(delay);
+
+		if (!GPIO_digitalRead(SW1_PIN)) {
+			// printf("SW1: OK\n");
+			displayModeTone(0.0);
+			Delay_Ms(300);
+
+			while(GPIO_digitalRead(SW1_PIN));
+
+			displayModeTone(f);
+			Delay_Ms(300);
+		}
+
+		if (!GPIO_digitalRead(SW2_PIN)) {
+			// printf("SW2: Up\n");
+			if (midiNoteNum >= UINT8_MAX) {
+				;
+			} else {
+				midiNoteNum++;
+			}
+			dirty = true;
+			Delay_Ms(100);
+		}
+
+		if (!GPIO_digitalRead(SW3_PIN)) {
+			// printf("SW3: Down\n");
+			if (midiNoteNum <= 0) {
+				;
+			} else {
+				midiNoteNum--;
+			}
+			dirty = true;
+			Delay_Ms(100);
+		}
+	}
+}
+
+int main()
+{
+	SystemInit();			// ch32v003 sETUP
+
+	setup();				// gpio Setup;
+
+	Delay_Ms( 2000 );
+	printf("Frequency Counter Start\n\r");
+
+	uint8_t exitStatus;
+	uint8_t mode;
+
+	exitStatus = NULL;
+	mode = showInitMenu();
+
+	switch (mode)
+	{
+		case 0: // freqcounter
+			Timer_Init();			// TIM2 Setup
+			setupModeFreqCounter0();
+			// Delay_Ms( 2000 );
+			exitStatus = loopModeFreqCounter0();
+		break;
+
+		case 2: // tone
+			setupModeTone();
+			Delay_Ms(500);
+			exitStatus = loopModeTone();
+		break;
+
+		default:
+			alertDefaultError();
+		break;
+	}
+
+	if (exitStatus) {
+		switch (mode)
+		{
+			default:
+				alertDefaultError();
+			break;
+		}
 	}
 }
