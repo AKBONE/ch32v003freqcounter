@@ -24,8 +24,8 @@
 
 //#define LED_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 6)
 #define SW1_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 0)
-#define SW2_PIN GPIOv_from_PORT_PIN(GPIO_port_C, 0)
-#define SW3_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 4)
+#define SW2_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 4)
+#define SW3_PIN GPIOv_from_PORT_PIN(GPIO_port_C, 0)
 #define ADC_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 3)
 #define SPK_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 2)
 
