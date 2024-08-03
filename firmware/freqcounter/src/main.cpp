@@ -103,11 +103,11 @@ uint8_t showInitMenu() {
 	while(1) {
 		ssd1306_setbuf(0);	// Clear Screen
 		ssd1306_drawstr_sz(0,  0, "30-6000Hz", !(mode == 0), fontsize_8x8);
-		ssd1306_drawstr_sz(0, 16, "900-1100Hz", !(mode == 1), fontsize_8x8);
-		ssd1306_drawstr_sz(0, 24, "tone", !(mode == 2), fontsize_8x8); // ♪
+		ssd1306_drawstr_sz(0, 13, "900-1100Hz", !(mode == 1), fontsize_8x8);
+		ssd1306_drawstr_sz(0, 26, "tone", !(mode == 2), fontsize_8x8); // ♪
 		// drawNoteIcon(0, 24 + 4, !(mode == 2));
-		ssd1306_drawstr_sz(0, 40, "real time", !(mode == 3), fontsize_8x8); // ～
-		ssd1306_drawstr_sz(0, 56, "QR code", !(mode == 4), fontsize_8x8);
+		ssd1306_drawstr_sz(0, 39, "real time", !(mode == 3), fontsize_8x8); // ～
+		ssd1306_drawstr_sz(0, 52, "QR code", !(mode == 4), fontsize_8x8);
 		ssd1306_refresh();
 
 		if (!GPIO_digitalRead(SW1_PIN)) {
@@ -499,14 +499,12 @@ int main()
 
 		case 2: // tone
 			setupModeTone();
-			Delay_Ms(500);
 			exitStatus = loopModeTone();
 		break;
 
 		case 3: // realtime
 			TimerInit_ModeRealtime();			// TIM2 Setup
 			setupModeRealtime();
-			Delay_Ms(500);
 			exitStatus = loopModeRealtime();
 		break;
 
