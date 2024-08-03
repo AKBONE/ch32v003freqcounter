@@ -105,12 +105,12 @@ uint8_t showInitMenu() {
 
 	while(1) {
 		ssd1306_setbuf(0);	// Clear Screen
-		ssd1306_drawstr_sz(0,  0, "30-6000Hz", !(mode == 0), fontsize_8x8);
-		ssd1306_drawstr_sz(0, 13, "900-1100Hz", !(mode == 1), fontsize_8x8);
-		ssd1306_drawstr_sz(0, 26, "tone", !(mode == 2), fontsize_8x8); // ♪
-		// drawNoteIcon(0, 24 + 4, !(mode == 2));
-		ssd1306_drawstr_sz(0, 39, "real time", !(mode == 3), fontsize_8x8); // ～
-		ssd1306_drawstr_sz(0, 52, "QR code", !(mode == 4), fontsize_8x8);
+		// drawNoteIcon(0, 0 + 4, !(mode == 0)); /// ♪
+		ssd1306_drawstr_sz(0,  0, "Tone", !(mode == 0), fontsize_8x8);
+		ssd1306_drawstr_sz(0, 13, "Real time", !(mode == 1), fontsize_8x8);
+		ssd1306_drawstr_sz(0, 26, "30-3000Hz", !(mode == 2), fontsize_8x8);
+		// ssd1306_drawstr_sz(0, 13, "900-1100Hz", !(mode == 3), fontsize_8x8);
+		ssd1306_drawstr_sz(0, 39, "QR code", !(mode == 3), fontsize_8x8);
 		ssd1306_refresh();
 
 		if (GPIO_digitalRead(SW1_PIN)) {
@@ -118,9 +118,9 @@ uint8_t showInitMenu() {
 			switch (mode)
 			{
 				case 0:
+				case 1:
 				case 2:
 				case 3:
-				case 4:
 					Delay_Ms(300);
 					return mode;
 
@@ -133,7 +133,7 @@ uint8_t showInitMenu() {
 		if (GPIO_digitalRead(SW2_PIN)) {
 			// printf("SW2: Up\n");
 			if (mode <= 0) {
-				mode = 4;
+				mode = 3;
 			} else {
 				mode--;
 			}
@@ -141,7 +141,7 @@ uint8_t showInitMenu() {
 
 		if (GPIO_digitalRead(SW3_PIN)) {
 			// printf("SW3: Down\n");
-			if (mode >= 4) {
+			if (mode >= 3) {
 				mode = 0;
 			} else {
 				mode++;
@@ -492,25 +492,25 @@ int main()
 
 	switch (mode)
 	{
-		case 0: // freqcounter
+		case 2: // 30-3000Hz freqcounter
 			Timer_Init();			// TIM2 Setup
 			setupModeFreqCounter0();
 			// Delay_Ms( 2000 );
 			exitStatus = loopModeFreqCounter0();
 		break;
 
-		case 2: // tone
+		case 0: // Tone
 			setupModeTone();
 			exitStatus = loopModeTone();
 		break;
 
-		case 3: // realtime
+		case 1: // Real time
 			TimerInit_ModeRealtime();			// TIM2 Setup
 			setupModeRealtime();
 			exitStatus = loopModeRealtime();
 		break;
 
-		case 4: // QR code
+		case 3: // QR code
 			exitStatus = loopModeQrCode();
 			if (exitStatus == 0) {
 				goto init_menu;
