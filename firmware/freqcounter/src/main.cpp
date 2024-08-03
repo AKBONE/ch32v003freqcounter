@@ -22,7 +22,7 @@
 #include "ssd1306.h"
 #include "micFFTlib.h"
 
-//#define LED_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 6)
+//#define LED_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 5)
 #define SW1_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 0)
 #define SW2_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 4)
 #define SW3_PIN GPIOv_from_PORT_PIN(GPIO_port_C, 0)
@@ -217,6 +217,7 @@ void setupModeTone()
     // 各GPIOの有効化
     GPIO_port_enable(GPIO_port_D);
     // 各ピンの設定
+    // GPIO_pinMode(LED_PIN, GPIO_pinMode_O_pushPull, GPIO_Speed_10MHz);
     GPIO_pinMode(SPK_PIN, GPIO_pinMode_O_pushPull, GPIO_Speed_10MHz);
 }
 
@@ -249,26 +250,29 @@ int loopModeTone() {
 	displayModeTone(f);
 
 	while(1) {
-		// f = 440.0 * pow(2.0, (midiNoteNum - 69) / 12.0);
-
-		if (midiNoteNum > 69) {
-			f = 440.0 * (1.0 + (double)(midiNoteNum - 69) / 12);
-		} else if (midiNoteNum < 69) {
-			f = 440.0 / (1.0 - (double)(midiNoteNum - 69) / 12);
-		} else {
-			f = 440.0;
-		}
-
 		if (dirty) {
 			dirty = false;
+
+			if (midiNoteNum > 69) {
+				f = 440.0 * (1.0 + (double)(midiNoteNum - 69) / 12);
+			} else if (midiNoteNum < 69) {
+				f = 440.0 / (1.0 - (double)(midiNoteNum - 69) / 12);
+			} else {
+				f = 440.0;
+			}
+
+			// f = 440.0 * pow(2.0, (midiNoteNum - 69) / 12.0);
+
 			displayModeTone(f);
 			// printf("%d\n", midiNoteNum);
+
+			delay = (1000 * 1000) / (2.0 * f);
 		}
 
-		delay = (1000 * 1000) / (2.0 * f);
-
+		// GPIO_digitalWrite(LED_PIN, high);
 		GPIO_digitalWrite(SPK_PIN, high);
 		Delay_Us(delay);
+		// GPIO_digitalWrite(LED_PIN, low);
 		GPIO_digitalWrite(SPK_PIN, low);
 		Delay_Us(delay);
 
