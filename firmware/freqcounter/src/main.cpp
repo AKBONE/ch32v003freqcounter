@@ -347,12 +347,10 @@ int loopModeRealtime() {
 	uint8_t mode;
 	uint32_t wait;
 	uint32_t dt;
-	uint16_t max;
 
 	mode = 0;
 	wait = 100;
 	dt = 0;
-	max = 1023;
 
 	t = millis_ModeRealtime();
 
@@ -375,9 +373,9 @@ int loopModeRealtime() {
 			for (int i = 0; i < 128; i++) {
 				// val /= (int) ceil((max + 1) / 48.0);
 				// val = floor(val / (max / 48.0));
-				vals[i] = (int) (vals[i] / (max / 48.0));
+				vals[i] = (int) (vals[i] / (1023 / 48.0)); /// MIC OUT is 0-1023
 				vals[i] = (vals[i] < 48) ? vals[i] : 48;
-				ssd1306_drawFastVLine(i, 63 - vals[i] + 1, vals[i] + 1, 1);
+				ssd1306_drawPixel(i, 63 - vals[i] + 1, 1);
 			}
 		}
 
@@ -392,18 +390,15 @@ int loopModeRealtime() {
 			case 1: // dt
 				mini_snprintf(buf, sizeof(buf), "dt: %u us", dt);
 			break;
-
-			case 2: // max
-				mini_snprintf(buf, sizeof(buf), "max: %u", max);
-			break;
 		}
 
 		ssd1306_drawstr_sz(0, 0, buf, 1, fontsize_8x8);
+		// ssd1306_drawFastHLine(0, 40, 127, 1); /// y = 40 = (64 - 16) / 2 + 16
 		ssd1306_refresh();
 
 		if (GPIO_digitalRead(SW1_PIN)) {
 			// printf("SW1: OK\n");
-			mode = (mode + 1) % 3;
+			mode = (mode + 1) % 2;
 			Delay_Ms(300);
 		}
 
@@ -417,14 +412,6 @@ int loopModeRealtime() {
 
 				case 1: // dt
 					dt += 10;
-				break;
-
-				case 2: // max
-				    if (max < (1023 - 10)) {
-						max += 10;
-					} else {
-						max = 1023;
-					}
 				break;
 			}
 			Delay_Ms(100);
@@ -447,14 +434,6 @@ int loopModeRealtime() {
 						dt -= 10;
 					} else {
 						dt = 0;
-					}
-				break;
-
-				case 2: // max
-				    if (max > (1 + 10)) {
-						max -= 10;
-					} else {
-						max = 1;
 					}
 				break;
 			}
