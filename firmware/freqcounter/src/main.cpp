@@ -36,6 +36,8 @@ uint16_t sampling_period_us;
 int8_t vReal[SAMPLES];
 int8_t vImag[SAMPLES];
 
+#include "qr.h"
+
 void setup()
 {
     // 各GPIOの有効化
@@ -115,6 +117,8 @@ uint8_t showInitMenu() {
 				case 0:
 				case 2:
 				case 3:
+				case 4:
+					Delay_Ms(300);
 					return mode;
 
 				default:
@@ -446,6 +450,28 @@ int loopModeRealtime() {
 	}
 }
 
+int loopModeQrCode() {
+	uint8_t color;
+
+	color = 0;
+
+	while(1) {
+		ssd1306_setbuf(0);	// Clear Screen
+		ssd1306_drawImage((128 - QR_WIDTH) / 2 - 8, (64 - QR_HEIGHT) / 2, qr_data, QR_WIDTH, QR_HEIGHT, color);
+		ssd1306_refresh();
+
+		if (!GPIO_digitalRead(SW1_PIN)) {
+			Delay_Ms(300);
+			return 0;
+		}
+
+		if (!GPIO_digitalRead(SW2_PIN) || !GPIO_digitalRead(SW3_PIN)) {
+			color = (color + 1) % 2;
+			Delay_Ms(300);
+		}
+	}
+}
+
 int main()
 {
 	SystemInit();			// ch32v003 sETUP
@@ -458,6 +484,7 @@ int main()
 	uint8_t exitStatus;
 	uint8_t mode;
 
+ init_menu:
 	exitStatus = NULL;
 	mode = showInitMenu();
 
@@ -481,6 +508,13 @@ int main()
 			setupModeRealtime();
 			Delay_Ms(500);
 			exitStatus = loopModeRealtime();
+		break;
+
+		case 4: // QR code
+			exitStatus = loopModeQrCode();
+			if (exitStatus == 0) {
+				goto init_menu;
+			}
 		break;
 
 		default:
