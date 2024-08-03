@@ -341,7 +341,7 @@ void setupModeRealtime()
 
 int loopModeRealtime() {
 	char buf[16];
-	uint16_t val;
+	uint16_t vals[128];
 	unsigned long t;
 
 	uint8_t mode;
@@ -361,16 +361,23 @@ int loopModeRealtime() {
 			t = millis_ModeRealtime();
 			ssd1306_setbuf(0);	// Clear Screen
 
-			for (int i = 0; i < 128; i++) {
-				if (dt) {
+			if (dt) {
+				for (int i = 0; i < 128; i++) {
 					Delay_Us(dt);
+					vals[i] = GPIO_analogRead(GPIO_Ain4_D3);
 				}
-				val = GPIO_analogRead(GPIO_Ain4_D3);
+			} else {
+				for (int i = 0; i < 128; i++) {
+					vals[i] = GPIO_analogRead(GPIO_Ain4_D3);
+				}
+			}
+
+			for (int i = 0; i < 128; i++) {
 				// val /= (int) ceil((max + 1) / 48.0);
 				// val = floor(val / (max / 48.0));
-				val = (int) (val / (max / 48.0));
-				val = (val < 48) ? val : 48;
-				ssd1306_drawFastVLine(i, 63 - val + 1, val + 1, 1);
+				vals[i] = (int) (vals[i] / (max / 48.0));
+				vals[i] = (vals[i] < 48) ? vals[i] : 48;
+				ssd1306_drawFastVLine(i, 63 - vals[i] + 1, vals[i] + 1, 1);
 			}
 		}
 
