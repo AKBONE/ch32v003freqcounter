@@ -54,46 +54,46 @@ void setup()
 	ssd1306_refresh();
 }
 
-void alertNotImpl() {
-	ssd1306_setbuf(0);		// Clear Screen
-	ssd1306_drawstr_sz(0, 24, "      Not       ", 1, fontsize_8x8);
-	ssd1306_drawstr_sz(0, 40, "  Implemented!  ", 1, fontsize_8x8);
-	ssd1306_refresh();
-	Delay_Ms(1000);
-}
+// void alertNotImpl() {
+// 	ssd1306_setbuf(0);		// Clear Screen
+// 	ssd1306_drawstr_sz(0, 24, "      Not       ", 1, fontsize_8x8);
+// 	ssd1306_drawstr_sz(0, 40, "  Implemented!  ", 1, fontsize_8x8);
+// 	ssd1306_refresh();
+// 	Delay_Ms(1000);
+// }
 
-void alertDefaultError() {
-	ssd1306_setbuf(0);		// Clear Screen
-	ssd1306_drawstr_sz(0, 24, "some error occurrs", 1, fontsize_8x8);
-	ssd1306_drawstr_sz(0, 40, "    Reboot Me!    ", 1, fontsize_8x8);
-	ssd1306_refresh();
-	while(1);
-}
+// void alertDefaultError() {
+// 	ssd1306_setbuf(0);		// Clear Screen
+// 	ssd1306_drawstr_sz(0, 24, "some error occurrs", 1, fontsize_8x8);
+// 	ssd1306_drawstr_sz(0, 40, "    Reboot Me!    ", 1, fontsize_8x8);
+// 	ssd1306_refresh();
+// 	while(1);
+// }
 
-void drawIcon(uint8_t *data, uint8_t size, uint8_t x_base, uint8_t y_base, uint8_t color) {
-	for (uint8_t i = 0; i < size; i++) {
-		for (uint8_t j = 0; j < size; j++) {
-			uint8_t pixel = *(data + i * size + j);
-			bool _color = (color && pixel) || (!color && !pixel);
-			ssd1306_drawPixel(x_base + j, y_base + i, _color);
-		}
-	}
-}
+// void drawIcon(uint8_t *data, uint8_t size, uint8_t x_base, uint8_t y_base, uint8_t color) {
+// 	for (uint8_t i = 0; i < size; i++) {
+// 		for (uint8_t j = 0; j < size; j++) {
+// 			uint8_t pixel = *(data + i * size + j);
+// 			bool _color = (color && pixel) || (!color && !pixel);
+// 			ssd1306_drawPixel(x_base + j, y_base + i, _color);
+// 		}
+// 	}
+// }
 
-void drawNoteIcon(uint8_t x_base, uint8_t y_base, uint8_t color) {
-	uint8_t data[8][8] = {
-		{0, 0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 0, 0, 1, 1, 0, 0},
-		{0, 0, 0, 0, 1, 1, 1, 0},
-		{0, 0, 0, 0, 1, 0, 1, 1},
-		{0, 0, 0, 0, 1, 0, 0, 0},
-		{0, 0, 1, 1, 1, 0, 0, 0},
-		{0, 1, 1, 1, 1, 0, 0, 0},
-		{0, 0, 1, 1, 0, 0, 0, 0},
-	};
+// void drawNoteIcon(uint8_t x_base, uint8_t y_base, uint8_t color) {
+// 	uint8_t data[8][8] = {
+// 		{0, 0, 0, 0, 1, 0, 0, 0},
+// 		{0, 0, 0, 0, 1, 1, 0, 0},
+// 		{0, 0, 0, 0, 1, 1, 1, 0},
+// 		{0, 0, 0, 0, 1, 0, 1, 1},
+// 		{0, 0, 0, 0, 1, 0, 0, 0},
+// 		{0, 0, 1, 1, 1, 0, 0, 0},
+// 		{0, 1, 1, 1, 1, 0, 0, 0},
+// 		{0, 0, 1, 1, 0, 0, 0, 0},
+// 	};
 
-	drawIcon((uint8_t*) data, 8, x_base, y_base, color);
-}
+// 	drawIcon((uint8_t*) data, 8, x_base, y_base, color);
+// }
 
 uint8_t showInitMenu() {
 	uint8_t mode = 0;
@@ -102,14 +102,14 @@ uint8_t showInitMenu() {
 		ssd1306_setbuf(0);	// Clear Screen
 		ssd1306_drawstr_sz(0,  0, "30-6000Hz", !(mode == 0), fontsize_8x8);
 		ssd1306_drawstr_sz(0, 16, "900-1100Hz", !(mode == 1), fontsize_8x8);
-		// ssd1306_drawstr_sz(0, 24, "tone", !(mode == 2), fontsize_8x8); // ♪
-		drawNoteIcon(0, 24 + 4, !(mode == 2));
+		ssd1306_drawstr_sz(0, 24, "tone", !(mode == 2), fontsize_8x8); // ♪
+		// drawNoteIcon(0, 24 + 4, !(mode == 2));
 		ssd1306_drawstr_sz(0, 40, "real time", !(mode == 3), fontsize_8x8); // ～
 		ssd1306_drawstr_sz(0, 56, "QR code", !(mode == 4), fontsize_8x8);
 		ssd1306_refresh();
 
 		if (!GPIO_digitalRead(SW1_PIN)) {
-			printf("SW1: OK\n");
+			// printf("SW1: OK\n");
 			switch (mode)
 			{
 				case 0:
@@ -118,13 +118,13 @@ uint8_t showInitMenu() {
 					return mode;
 
 				default:
-					alertNotImpl();
+					// alertNotImpl();
 				break;
 			}
 		}
 
 		if (!GPIO_digitalRead(SW2_PIN)) {
-			printf("SW2: Up\n");
+			// printf("SW2: Up\n");
 			if (mode <= 0) {
 				mode = 4;
 			} else {
@@ -133,7 +133,7 @@ uint8_t showInitMenu() {
 		}
 
 		if (!GPIO_digitalRead(SW3_PIN)) {
-			printf("SW3: Down\n");
+			// printf("SW3: Down\n");
 			if (mode >= 4) {
 				mode = 0;
 			} else {
@@ -219,7 +219,8 @@ void displayModeTone(double f) {
 	if (f) {
 		sprintf(buf, "%dHz", (int) f);
 	} else {
-		sprintf(buf, "MUTE");
+		// sprintf(buf, "MUTE");
+		sprintf(buf, "");
 	}
 	ssd1306_setbuf(0);	// Clear Screen
 	// ssd1306_drawstr_sz((6 - strlen(buf)) * 16 + 16, 1, buf, 1, fontsize_16x16);
@@ -255,7 +256,7 @@ int loopModeTone() {
 		if (dirty) {
 			dirty = false;
 			displayModeTone(f);
-			printf("%d\n", midiNoteNum);
+			// printf("%d\n", midiNoteNum);
 		}
 
 		delay = (1000 * 1000) / (2.0 * f);
@@ -452,7 +453,7 @@ int main()
 	setup();				// gpio Setup;
 
 	Delay_Ms( 2000 );
-	printf("Frequency Counter Start\n\r");
+	// printf("Frequency Counter Start\n\r");
 
 	uint8_t exitStatus;
 	uint8_t mode;
@@ -483,7 +484,7 @@ int main()
 		break;
 
 		default:
-			alertDefaultError();
+			// alertDefaultError();
 		break;
 	}
 
@@ -491,7 +492,7 @@ int main()
 		switch (mode)
 		{
 			default:
-				alertDefaultError();
+				// alertDefaultError();
 			break;
 		}
 	}
