@@ -38,6 +38,9 @@ int8_t vImag[SAMPLES];
 
 #include "qr.h"
 
+// function prototype (declaration), definition in "ch32v003fun.c"
+extern "C" int mini_snprintf(char* buffer, unsigned int buffer_len, const char *fmt, ...);
+
 void setup()
 {
     // 各GPIOの有効化
@@ -221,10 +224,9 @@ void displayModeTone(double f) {
 	char buf[16];
 
 	if (f) {
-		sprintf(buf, "%dHz", (int) f);
+		mini_snprintf(buf, sizeof(buf), "%dHz", (int) f);
 	} else {
-		// sprintf(buf, "MUTE");
-		sprintf(buf, "");
+		mini_snprintf(buf, sizeof(buf), "Mute");
 	}
 	ssd1306_setbuf(0);	// Clear Screen
 	// ssd1306_drawstr_sz((6 - strlen(buf)) * 16 + 16, 1, buf, 1, fontsize_16x16);
@@ -373,15 +375,15 @@ int loopModeRealtime() {
 		switch (mode)
 		{
 			case 0: // wait
-				sprintf(buf, "wait: %u ms", wait);
+				mini_snprintf(buf, sizeof(buf), "wait: %u ms", wait);
 			break;
 
 			case 1: // dt
-				sprintf(buf, "dt: %u us", dt);
+				mini_snprintf(buf, sizeof(buf), "dt: %u us", dt);
 			break;
 
 			case 2: // max
-				sprintf(buf, "max: %u", max);
+				mini_snprintf(buf, sizeof(buf), "max: %u", max);
 			break;
 		}
 
