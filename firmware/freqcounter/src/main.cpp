@@ -44,9 +44,9 @@ void setup()
     GPIO_port_enable(GPIO_port_D);
     GPIO_port_enable(GPIO_port_C);
     // 各ピンの設定
-    GPIO_pinMode(SW1_PIN, GPIO_pinMode_I_pullUp, GPIO_Speed_10MHz); /// GPIO_Speed_In? @see https://github.com/cnlohr/ch32v003fun/blob/master/examples/GPIO/GPIO.c#L55
-    GPIO_pinMode(SW2_PIN, GPIO_pinMode_I_pullUp, GPIO_Speed_10MHz);
-    GPIO_pinMode(SW3_PIN, GPIO_pinMode_I_pullUp, GPIO_Speed_10MHz);
+    GPIO_pinMode(SW1_PIN, GPIO_pinMode_I_pullDown, GPIO_Speed_10MHz); /// GPIO_Speed_In? @see https://github.com/cnlohr/ch32v003fun/blob/master/examples/GPIO/GPIO.c#L55
+    GPIO_pinMode(SW2_PIN, GPIO_pinMode_I_pullDown, GPIO_Speed_10MHz);
+    GPIO_pinMode(SW3_PIN, GPIO_pinMode_I_pullDown, GPIO_Speed_10MHz);
 
 	ssd1306_spi_init();		// i2c Setup
 	ssd1306_init();			// SSD1306 Setup
@@ -110,7 +110,7 @@ uint8_t showInitMenu() {
 		ssd1306_drawstr_sz(0, 52, "QR code", !(mode == 4), fontsize_8x8);
 		ssd1306_refresh();
 
-		if (!GPIO_digitalRead(SW1_PIN)) {
+		if (GPIO_digitalRead(SW1_PIN)) {
 			// printf("SW1: OK\n");
 			switch (mode)
 			{
@@ -127,7 +127,7 @@ uint8_t showInitMenu() {
 			}
 		}
 
-		if (!GPIO_digitalRead(SW2_PIN)) {
+		if (GPIO_digitalRead(SW2_PIN)) {
 			// printf("SW2: Up\n");
 			if (mode <= 0) {
 				mode = 4;
@@ -136,7 +136,7 @@ uint8_t showInitMenu() {
 			}
 		}
 
-		if (!GPIO_digitalRead(SW3_PIN)) {
+		if (GPIO_digitalRead(SW3_PIN)) {
 			// printf("SW3: Down\n");
 			if (mode >= 4) {
 				mode = 0;
@@ -270,18 +270,18 @@ int loopModeTone() {
 		GPIO_digitalWrite(SPK_PIN, low);
 		Delay_Us(delay);
 
-		if (!GPIO_digitalRead(SW1_PIN)) {
+		if (GPIO_digitalRead(SW1_PIN)) {
 			// printf("SW1: OK\n");
 			displayModeTone(0.0);
 			Delay_Ms(300);
 
-			while(GPIO_digitalRead(SW1_PIN));
+			while(!GPIO_digitalRead(SW1_PIN));
 
 			displayModeTone(f);
 			Delay_Ms(300);
 		}
 
-		if (!GPIO_digitalRead(SW2_PIN)) {
+		if (GPIO_digitalRead(SW2_PIN)) {
 			// printf("SW2: Up\n");
 			if (midiNoteNum >= UINT8_MAX) {
 				;
@@ -292,7 +292,7 @@ int loopModeTone() {
 			Delay_Ms(100);
 		}
 
-		if (!GPIO_digitalRead(SW3_PIN)) {
+		if (GPIO_digitalRead(SW3_PIN)) {
 			// printf("SW3: Down\n");
 			if (midiNoteNum <= 0) {
 				;
@@ -388,13 +388,13 @@ int loopModeRealtime() {
 		ssd1306_drawstr_sz(0, 0, buf, 1, fontsize_8x8);
 		ssd1306_refresh();
 
-		if (!GPIO_digitalRead(SW1_PIN)) {
+		if (GPIO_digitalRead(SW1_PIN)) {
 			// printf("SW1: OK\n");
 			mode = (mode + 1) % 3;
 			Delay_Ms(300);
 		}
 
-		if (!GPIO_digitalRead(SW2_PIN)) {
+		if (GPIO_digitalRead(SW2_PIN)) {
 			// printf("SW2: Up\n");
 			switch (mode)
 			{
@@ -417,7 +417,7 @@ int loopModeRealtime() {
 			Delay_Ms(100);
 		}
 
-		if (!GPIO_digitalRead(SW3_PIN)) {
+		if (GPIO_digitalRead(SW3_PIN)) {
 			// printf("SW3: Down\n");
 			switch (mode)
 			{
@@ -460,12 +460,12 @@ int loopModeQrCode() {
 		ssd1306_drawImage((128 - QR_WIDTH) / 2 - 8, (64 - QR_HEIGHT) / 2, qr_data, QR_WIDTH, QR_HEIGHT, color);
 		ssd1306_refresh();
 
-		if (!GPIO_digitalRead(SW1_PIN)) {
+		if (GPIO_digitalRead(SW1_PIN)) {
 			Delay_Ms(300);
 			return 0;
 		}
 
-		if (!GPIO_digitalRead(SW2_PIN) || !GPIO_digitalRead(SW3_PIN)) {
+		if (GPIO_digitalRead(SW2_PIN) || GPIO_digitalRead(SW3_PIN)) {
 			color = (color + 1) % 2;
 			Delay_Ms(300);
 		}
