@@ -55,7 +55,7 @@ void setup()
 	ssd1306_init();			// SSD1306 Setup
 	ssd1306_setbuf(0);		// Clear Screen
 	ssd1306_drawstr_sz(0, 24, "FrequencyCounter", 1, fontsize_8x8);
-	ssd1306_drawstr_sz(0, 40, "   Version 1.0  ", 1, fontsize_8x8);
+	ssd1306_drawstr_sz(0, 40, "   Version 1.1  ", 1, fontsize_8x8);
 	ssd1306_refresh();
 }
 
