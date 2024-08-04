@@ -132,6 +132,7 @@ uint8_t showInitMenu() {
 
 		if (GPIO_digitalRead(SW2_PIN)) {
 			// printf("SW2: Up\n");
+			Delay_Ms(100);
 			if (mode <= 0) {
 				mode = 3;
 			} else {
@@ -141,6 +142,7 @@ uint8_t showInitMenu() {
 
 		if (GPIO_digitalRead(SW3_PIN)) {
 			// printf("SW3: Down\n");
+			Delay_Ms(100);
 			if (mode >= 3) {
 				mode = 0;
 			} else {
@@ -166,20 +168,29 @@ int loopModeFreqCounter0() {
 	char buf[16];
 
 	while(1) {
+		uint16_t ave = 0;
+		uint8_t  val = 0;
 		ssd1306_setbuf(0);	// Clear Screen
 		for (int i = 0; i < SAMPLES; i++) {
 			unsigned long t = micros();
-			vReal[i] = (GPIO_analogRead(GPIO_Ain4_D3) - 408) >> 2;
-			vImag[i] = 0; // Imaginary partは0に初期化
+			val = (uint8_t)(GPIO_analogRead(GPIO_Ain4_D3) >> 2);
+			ave += val;
+			vImag[i] = val;
 			while ((micros() - t) < sampling_period_us);
+		}
+		ave = ave / SAMPLES;
+		printf("ave = %d\n", ave);
+		for (int i = 0; i < SAMPLES; i++) {
+			vReal[i] = (int8_t)(vImag[i] - ave);
+			vImag[i] = 0; // Imaginary partは0に初期化
 		}
 
   		fix_fft((char *)vReal, (char *)vImag, 8, 0); // SAMPLES = 32なので、log2(SAMPLES) = 5
 
   		/* Magnitude Calculation */
 		for (int i = 0; i < SAMPLES / 2; i++) {
-			//vReal[i] = abs(vReal[i]) + abs(vImag[i]); // Magnitude calculation without sqrt
-			vReal[i] = sqrt(vReal[i] * vReal[i] + vImag[i] * vImag[i]);
+			vReal[i] = abs(vReal[i]) + abs(vImag[i]); // Magnitude calculation without sqrt
+			//vReal[i] = sqrt(vReal[i] * vReal[i] + vImag[i] * vImag[i]);
 		}
 		/* Find Peak */
 		uint8_t maxIndex = 0;
@@ -195,19 +206,20 @@ int loopModeFreqCounter0() {
 		// disp freqeuncy
 		int peakFrequency = (SAMPLING_FREQUENCY / SAMPLES) * maxIndex;
  		if (maxValue >= 4 ) {
-			uint16_to_string(peakFrequency + 12, buf, sizeof(buf));
+//			uint16_to_string(peakFrequency + 12, buf, sizeof(buf));
+			mini_snprintf(buf, sizeof(buf), " %4dHz", peakFrequency + 12);
 		    //printf("%d\n", peakFrequency); // Print out what frequency is the most dominant.
   		} else {
-			strcpy(buf, "0");
+			strcpy(buf, "    0Hz");
 		}
-		strcat(buf, "Hz");
+//		strcat(buf, "Hz");
+		ssd1306_drawstr_sz((6 - strlen(buf)) * 16 + 16, 1, buf, 1, fontsize_16x16);
 		ssd1306_drawFastHLine(  0,   0,  128, 1);
 		ssd1306_drawFastHLine(  0,  16,  128, 1);
 		ssd1306_drawFastHLine(  0,  63,  128, 1);
 		ssd1306_drawFastVLine(  0,   0,   64, 1);
 		ssd1306_drawFastVLine(127,   0,   64, 2);
 
-		ssd1306_drawstr_sz((6 - strlen(buf)) * 16 + 16, 1, buf, 1, fontsize_16x16);
 		ssd1306_refresh();
 	}
 }
@@ -221,11 +233,11 @@ void setupModeTone()
     GPIO_pinMode(SPK_PIN, GPIO_pinMode_O_pushPull, GPIO_Speed_10MHz);
 }
 
-void displayModeTone(double f) {
+void displayModeTone(uint16_t f) {
 	char buf[16];
 
 	if (f) {
-		mini_snprintf(buf, sizeof(buf), "%dHz", (int) f);
+		mini_snprintf(buf, sizeof(buf), "%dHz",  f);
 	} else {
 		mini_snprintf(buf, sizeof(buf), "Mute");
 	}
@@ -237,14 +249,14 @@ void displayModeTone(double f) {
 
 int loopModeTone() {
 	uint8_t midiNoteNum;
-	double f;
-	unsigned int delay;
+	uint16_t f;
+	uint16_t delay;
 	bool dirty;
 
 	midiNoteNum = 69;
-	f = 440.0;
+	f = 440;
 
-	delay = (1000 * 1000) / (2.0 * f);
+	delay = (1000 * 1000) / (2 * f);
 	dirty = false;
 
 	displayModeTone(f);
@@ -254,11 +266,13 @@ int loopModeTone() {
 			dirty = false;
 
 			if (midiNoteNum > 69) {
-				f = 440.0 * (1.0 + (double)(midiNoteNum - 69) / 12);
+//				f = 440 * (1 + (midiNoteNum - 69) / 12);
+				f = 440 + (440 * midiNoteNum - 69 * 440) / 12;
 			} else if (midiNoteNum < 69) {
-				f = 440.0 / (1.0 - (double)(midiNoteNum - 69) / 12);
+//				f = 440 / (1 - (midiNoteNum - 69) / 12);
+				f = 440 - (440 * midiNoteNum - 69 * 440) / 12;
 			} else {
-				f = 440.0;
+				f = 440;
 			}
 
 			// f = 440.0 * pow(2.0, (midiNoteNum - 69) / 12.0);
@@ -266,7 +280,7 @@ int loopModeTone() {
 			displayModeTone(f);
 			// printf("%d\n", midiNoteNum);
 
-			delay = (1000 * 1000) / (2.0 * f);
+			delay = (1000 * 1000) / (2 * f);
 		}
 
 		// GPIO_digitalWrite(LED_PIN, high);
@@ -278,7 +292,7 @@ int loopModeTone() {
 
 		if (GPIO_digitalRead(SW1_PIN)) {
 			// printf("SW1: OK\n");
-			displayModeTone(0.0);
+			displayModeTone(0);
 			Delay_Ms(300);
 
 			while(!GPIO_digitalRead(SW1_PIN));
@@ -373,7 +387,7 @@ int loopModeRealtime() {
 			for (int i = 0; i < 128; i++) {
 				// val /= (int) ceil((max + 1) / 48.0);
 				// val = floor(val / (max / 48.0));
-				vals[i] = (int) (vals[i] / (1023 / 48.0)); /// MIC OUT is 0-1023
+				vals[i] = (int) (vals[i] / (1023 / 48)); /// MIC OUT is 0-1023
 				vals[i] = (vals[i] < 48) ? vals[i] : 48;
 				ssd1306_drawPixel(i, 63 - vals[i] + 1, 1);
 			}
@@ -479,6 +493,7 @@ int main()
  init_menu:
 	exitStatus = NULL;
 	mode = showInitMenu();
+//	mode = 2;
 
 	switch (mode)
 	{

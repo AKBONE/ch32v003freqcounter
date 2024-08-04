@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "micFFTlib.h"
 #include "ch32v003fun.h"
-
+/*
 static void reverse_str(char* str, size_t len) {
     size_t start = 0;
     size_t end = len - 1;
@@ -30,7 +30,7 @@ void uint16_to_string(uint16_t value, char* str, size_t str_size) {
     str[index] = '\0';
     reverse_str(str, index);
 }
-
+*/
 void Timer_Init(void) {
     // タイマークロックの有効化
     RCC->APB1PCENR |= RCC_APB1Periph_TIM2;
