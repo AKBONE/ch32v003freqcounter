@@ -9,6 +9,9 @@
 #include "fix_fft.h"
 #include "ch32v003fun.h"
 
+#define micros() (SysTick->CNT / DELAY_US_TIME)
+#define millis() (SysTick->CNT / DELAY_MS_TIME)
+
 // what type of OLED - uncomment just one
 //#define SSD1306_64X32
 //#define SSD1306_128X32
@@ -20,7 +23,6 @@
 #include "ch32v003_GPIO_branchless.h"
 #include "ssd1306_spi.h"
 #include "ssd1306.h"
-#include "micFFTlib.h"
 
 //#define LED_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 5)
 #define SW1_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 0)
@@ -179,7 +181,7 @@ int loopModeFreqCounter0() {
 			while ((micros() - t) < sampling_period_us);
 		}
 		ave = ave / SAMPLES;
-		printf("ave = %d\n", ave);
+		//printf("ave = %d\n", ave);
 		for (int i = 0; i < SAMPLES; i++) {
 			vReal[i] = (int8_t)(vImag[i] - ave);
 			vImag[i] = 0; // Imaginary partは0に初期化
@@ -325,24 +327,6 @@ int loopModeTone() {
 	}
 }
 
-void TimerInit_ModeRealtime(void) {
-	// タイマークロックの有効化
-	RCC->APB1PCENR |= RCC_APB1Periph_TIM2;
-
-	// タイマーのリセット
-	TIM2->CTLR1 = 0;  // コントロールレジスタをリセット
-	TIM2->PSC = 48000 - 1;  // プリスケーラを48000に設定（48 MHzクロックを1 kHzに分周）
-	TIM2->ATRLR = 0xFFFF;  // 自動リロードレジスタを最大値に設定
-
-	// タイマーのスタート
-	TIM2->CTLR1 |= 0x01;  // タイマーを有効にする (TIM_CTLR1_CENの代わりにビット0を直接設定)
-}
-
-// ミリ秒単位での経過時間を取得
-uint16_t millis_ModeRealtime(void) {
-	return TIM2->CNT;
-}
-
 void setupModeRealtime()
 {
 	// 各GPIOの有効化
@@ -366,11 +350,11 @@ int loopModeRealtime() {
 	wait = 100;
 	dt = 0;
 
-	t = millis_ModeRealtime();
+	t = millis();
 
 	while(1) {
-		if ((millis_ModeRealtime() - t) > wait) {
-			t = millis_ModeRealtime();
+		if ((millis() - t) > wait) {
+			t = millis();
 			ssd1306_setbuf(0);	// Clear Screen
 
 			if (dt) {
@@ -485,7 +469,7 @@ int main()
 	setup();				// gpio Setup;
 
 	Delay_Ms( 2000 );
-	// printf("Frequency Counter Start\n\r");
+	//printf("Frequency Counter Start\n\r");
 
 	uint8_t exitStatus;
 	uint8_t mode;
@@ -498,7 +482,7 @@ int main()
 	switch (mode)
 	{
 		case 2: // 30-3000Hz freqcounter
-			Timer_Init();			// TIM2 Setup
+//			Timer_Init();			// TIM2 Setup
 			setupModeFreqCounter0();
 			// Delay_Ms( 2000 );
 			exitStatus = loopModeFreqCounter0();
@@ -510,7 +494,7 @@ int main()
 		break;
 
 		case 1: // Real time
-			TimerInit_ModeRealtime();			// TIM2 Setup
+//			TimerInit_ModeRealtime();			// TIM2 Setup
 			setupModeRealtime();
 			exitStatus = loopModeRealtime();
 		break;

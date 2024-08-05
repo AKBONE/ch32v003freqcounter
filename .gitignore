@@ -1,0 +1,7 @@
+firmware/freqcounter/.pio
+firmware/freqcounter/.vscode/.browse.c_cpp.db*
+firmware/freqcounter/.vscode/c_cpp_properties.json
+firmware/freqcounter/.vscode/launch.json
+firmware/freqcounter/.vscode/ipch
+firmware/freqcounter
+
