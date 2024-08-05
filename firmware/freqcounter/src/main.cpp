@@ -1,5 +1,5 @@
 //
-//	micFFT.cpp 
+//	freqcounter Ver 1.1
 //
 //  2024.07.31 New Create
 //
@@ -18,8 +18,8 @@
 #define SSD1306_128X64
 #define SCALE 3
 
-#define GPIO_ADC_MUX_DELAY 100
-#define GPIO_ADC_sampletime GPIO_ADC_sampletime_43cy
+//#define GPIO_ADC_MUX_DELAY 100
+//#define GPIO_ADC_sampletime GPIO_ADC_sampletime_43cy
 #include "ch32v003_GPIO_branchless.h"
 #include "ssd1306_spi.h"
 #include "ssd1306.h"
@@ -42,6 +42,9 @@ int8_t vImag[SAMPLES];
 
 // function prototype (declaration), definition in "ch32v003fun.c"
 extern "C" int mini_snprintf(char* buffer, unsigned int buffer_len, const char *fmt, ...);
+char title1[] = "FrequencyCounter";
+char title2[] = "   Version 1.1  ";
+
 
 void setup()
 {
@@ -56,8 +59,8 @@ void setup()
 	ssd1306_spi_init();		// i2c Setup
 	ssd1306_init();			// SSD1306 Setup
 	ssd1306_setbuf(0);		// Clear Screen
-	ssd1306_drawstr_sz(0, 24, "FrequencyCounter", 1, fontsize_8x8);
-	ssd1306_drawstr_sz(0, 40, "   Version 1.1  ", 1, fontsize_8x8);
+	ssd1306_drawstr_sz(0, 24, title1, 1, fontsize_8x8);
+	ssd1306_drawstr_sz(0, 40, title2, 1, fontsize_8x8);
 	ssd1306_refresh();
 }
 
@@ -125,7 +128,6 @@ uint8_t showInitMenu() {
 				case 3:
 					Delay_Ms(300);
 					return mode;
-
 				default:
 					// alertNotImpl();
 				break;
@@ -151,7 +153,6 @@ uint8_t showInitMenu() {
 				mode++;
 			}
 		}
-
 		Delay_Ms(100);
 	}
 }
@@ -339,13 +340,15 @@ void setupModeRealtime()
 
 int loopModeRealtime() {
 	char buf[16];
-	uint16_t vals[128];
+//	uint16_t vals[128];
+	uint16_t *vals;
 	unsigned long t;
 
 	uint8_t mode;
 	uint32_t wait;
 	uint32_t dt;
 
+	vals = (uint16_t *)vReal;			// use vReal 
 	mode = 0;
 	wait = 100;
 	dt = 0;
@@ -400,7 +403,7 @@ int loopModeRealtime() {
 			Delay_Ms(300);
 		}
 
-		if (GPIO_digitalRead(SW2_PIN)) {
+		if (GPIO_digitalRead(SW3_PIN)) {
 			// printf("SW2: Up\n");
 			switch (mode)
 			{
@@ -412,10 +415,10 @@ int loopModeRealtime() {
 					dt += 10;
 				break;
 			}
-			Delay_Ms(100);
+			Delay_Ms(200);
 		}
 
-		if (GPIO_digitalRead(SW3_PIN)) {
+		if (GPIO_digitalRead(SW2_PIN)) {
 			// printf("SW3: Down\n");
 			switch (mode)
 			{
@@ -435,7 +438,7 @@ int loopModeRealtime() {
 					}
 				break;
 			}
-			Delay_Ms(100);
+			Delay_Ms(200);
 		}
 	}
 }
