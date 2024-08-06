@@ -273,7 +273,7 @@ int loopModeTone() {
 				f = 440 + (440 * midiNoteNum - 69 * 440) / 12;
 			} else if (midiNoteNum < 69) {
 //				f = 440 / (1 - (midiNoteNum - 69) / 12);
-				f = 440 - (440 * midiNoteNum - 69 * 440) / 12;
+				f = 5280 / (81 - midiNoteNum);
 			} else {
 				f = 440;
 			}
