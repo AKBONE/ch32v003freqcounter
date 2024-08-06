@@ -251,7 +251,7 @@ void displayModeTone(uint16_t f) {
 }
 
 int loopModeTone() {
-	uint8_t midiNoteNum;
+	int32_t midiNoteNum;
 	uint16_t f;
 	uint16_t delay;
 	bool dirty;
@@ -306,8 +306,10 @@ int loopModeTone() {
 
 		if (GPIO_digitalRead(SW2_PIN)) {
 			// printf("SW2: Up\n");
-			if (midiNoteNum >= UINT8_MAX) {
+			if (midiNoteNum >= INT32_MAX) {
 				;
+			} else if (midiNoteNum < 0) {
+				midiNoteNum /= 2;
 			} else {
 				midiNoteNum++;
 			}
@@ -317,8 +319,10 @@ int loopModeTone() {
 
 		if (GPIO_digitalRead(SW3_PIN)) {
 			// printf("SW3: Down\n");
-			if (midiNoteNum <= 0) {
+			if (midiNoteNum <= -4096) { /// 周波数が 0 以下にならないように制御
 				;
+			} else if (midiNoteNum < 0) {
+				midiNoteNum *= 2;
 			} else {
 				midiNoteNum--;
 			}
