@@ -60,8 +60,8 @@ With its small footprint and fast screen display, it can be used as a small sign
 | CH32V003F4P6 PIN |           | SW  |  |
 |------------------|-----------|-----|------|
 | 8                | PD0       | SW1 | OK   |
-| 10               | PC0       | SW2 | ↑    |
-| 1                | PD4       | SW3 | ↓    |
+| 10               | PC0       | SW2 | ↓    |
+| 1                | PD4       | SW3 | ↑    |
 
 
 | CH32V003F4P6 PIN |         | SEEED_GROVE |    |
