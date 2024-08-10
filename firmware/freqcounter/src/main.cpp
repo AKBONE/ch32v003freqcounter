@@ -80,42 +80,74 @@ void setup()
 // 	while(1);
 // }
 
-// void drawIcon(uint8_t *data, uint8_t size, uint8_t x_base, uint8_t y_base, uint8_t color) {
-// 	for (uint8_t i = 0; i < size; i++) {
-// 		for (uint8_t j = 0; j < size; j++) {
-// 			uint8_t pixel = *(data + i * size + j);
-// 			bool _color = (color && pixel) || (!color && !pixel);
-// 			ssd1306_drawPixel(x_base + j, y_base + i, _color);
-// 		}
-// 	}
-// }
+void drawIcon(uint8_t *data, uint8_t size, uint8_t x_base, uint8_t y_base, uint8_t color) {
+	for (uint8_t i = 0; i < size; i++) {
+		for (uint8_t j = 0; j < size; j++) {
+			uint8_t pixel = *(data + i * size + j);
+			bool _color = (color && pixel) || (!color && !pixel);
+			ssd1306_drawPixel(x_base + j, y_base + i, _color);
+		}
+	}
+}
 
-// void drawNoteIcon(uint8_t x_base, uint8_t y_base, uint8_t color) {
-// 	uint8_t data[8][8] = {
-// 		{0, 0, 0, 0, 1, 0, 0, 0},
-// 		{0, 0, 0, 0, 1, 1, 0, 0},
-// 		{0, 0, 0, 0, 1, 1, 1, 0},
-// 		{0, 0, 0, 0, 1, 0, 1, 1},
-// 		{0, 0, 0, 0, 1, 0, 0, 0},
-// 		{0, 0, 1, 1, 1, 0, 0, 0},
-// 		{0, 1, 1, 1, 1, 0, 0, 0},
-// 		{0, 0, 1, 1, 0, 0, 0, 0},
-// 	};
+void drawWaveIcon0(uint8_t x_base, uint8_t y_base, uint8_t color) {
+	uint8_t data[8][8] = {
+		{0, 0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 1, 0, 1, 0, 0},
+		{0, 0, 1, 0, 0, 0, 1, 0},
+		{0, 0, 1, 0, 0, 0, 1, 0},
+		{0, 1, 0, 0, 0, 0, 0, 1},
+		{0, 1, 0, 0, 0, 0, 0, 1},
+		{1, 0, 0, 0, 0, 0, 0, 0},
+		{1, 0, 0, 0, 0, 0, 0, 0},
+	};
 
-// 	drawIcon((uint8_t*) data, 8, x_base, y_base, color);
-// }
+	drawIcon((uint8_t*) data, 8, x_base, y_base, color);
+}
+
+void drawWaveIcon1(uint8_t x_base, uint8_t y_base, uint8_t color) {
+	uint8_t data[8][8] = {
+		{1, 0, 0, 0, 0, 0, 0, 0},
+		{1, 0, 0, 0, 0, 0, 0, 0},
+		{0, 1, 0, 0, 0, 0, 0, 1},
+		{0, 1, 0, 0, 0, 0, 0, 1},
+		{0, 0, 1, 0, 0, 0, 1, 0},
+		{0, 0, 1, 0, 0, 0, 1, 0},
+		{0, 0, 0, 1, 0, 1, 0, 0},
+		{0, 0, 0, 0, 1, 0, 0, 0},
+	};
+
+	drawIcon((uint8_t*) data, 8, x_base, y_base, color);
+}
+
+void drawNoteIcon(uint8_t x_base, uint8_t y_base, uint8_t color) {
+	uint8_t data[8][8] = {
+		{0, 0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 0, 1, 1, 0, 0},
+		{0, 0, 0, 0, 1, 1, 1, 0},
+		{0, 0, 0, 0, 1, 0, 1, 1},
+		{0, 0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 1, 1, 1, 0, 0, 0},
+		{0, 1, 1, 1, 1, 0, 0, 0},
+		{0, 0, 1, 1, 0, 0, 0, 0},
+	};
+
+	drawIcon((uint8_t*) data, 8, x_base, y_base, color);
+}
 
 uint8_t showInitMenu() {
 	uint8_t mode = 0;
 
 	while(1) {
 		ssd1306_setbuf(0);	// Clear Screen
-		// drawNoteIcon(0, 0 + 4, !(mode == 0)); /// ♪
-		ssd1306_drawstr_sz(0,  0, "Tone", !(mode == 0), fontsize_8x8);
-		ssd1306_drawstr_sz(0, 13, "Real time", !(mode == 1), fontsize_8x8);
-		ssd1306_drawstr_sz(0, 26, "30-3000Hz", !(mode == 2), fontsize_8x8);
+		ssd1306_drawstr_sz(0, 0, "30-3000Hz", !(mode == 0), fontsize_8x8);
+		drawWaveIcon0(0, 13 + 3, !(mode == 1)); /// ~
+		drawWaveIcon1(8, 26 - 3, !(mode == 1)); /// ~
+		drawWaveIcon0(16, 13 + 3, !(mode == 1)); /// ~
+		drawWaveIcon1(24, 26 - 3, !(mode == 1)); /// ~
+		drawNoteIcon(0, 39, !(mode == 2)); /// ♪
 		// ssd1306_drawstr_sz(0, 13, "900-1100Hz", !(mode == 3), fontsize_8x8);
-		ssd1306_drawstr_sz(0, 39, "QR code", !(mode == 3), fontsize_8x8);
+		ssd1306_drawstr_sz(0, 52, "QR code", !(mode == 3), fontsize_8x8);
 		ssd1306_refresh();
 
 		if (GPIO_digitalRead(SW1_PIN)) {
@@ -488,14 +520,14 @@ int main()
 
 	switch (mode)
 	{
-		case 2: // 30-3000Hz freqcounter
+		case 0: // 30-3000Hz freqcounter
 //			Timer_Init();			// TIM2 Setup
 			setupModeFreqCounter0();
 			// Delay_Ms( 2000 );
 			exitStatus = loopModeFreqCounter0();
 		break;
 
-		case 0: // Tone
+		case 2: // Tone
 			setupModeTone();
 			exitStatus = loopModeTone();
 		break;
