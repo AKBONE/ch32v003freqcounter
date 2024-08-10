@@ -24,7 +24,7 @@
 #include "ssd1306_spi.h"
 #include "ssd1306.h"
 
-//#define LED_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 5)
+#define LED_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 5)
 #define SW1_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 0)
 #define SW2_PIN GPIOv_from_PORT_PIN(GPIO_port_D, 4)
 #define SW3_PIN GPIOv_from_PORT_PIN(GPIO_port_C, 0)
@@ -264,7 +264,7 @@ void setupModeTone()
     // 各GPIOの有効化
     GPIO_port_enable(GPIO_port_D);
     // 各ピンの設定
-    // GPIO_pinMode(LED_PIN, GPIO_pinMode_O_pushPull, GPIO_Speed_10MHz);
+    GPIO_pinMode(LED_PIN, GPIO_pinMode_O_pushPull, GPIO_Speed_10MHz);
     GPIO_pinMode(SPK_PIN, GPIO_pinMode_O_pushPull, GPIO_Speed_10MHz);
 }
 
@@ -318,10 +318,10 @@ int loopModeTone() {
 			delay = (1000 * 1000) / (2 * f);
 		}
 
-		// GPIO_digitalWrite(LED_PIN, high);
+		GPIO_digitalWrite(LED_PIN, high);
 		GPIO_digitalWrite(SPK_PIN, high);
 		Delay_Us(delay);
-		// GPIO_digitalWrite(LED_PIN, low);
+		GPIO_digitalWrite(LED_PIN, low);
 		GPIO_digitalWrite(SPK_PIN, low);
 		Delay_Us(delay);
 
@@ -351,7 +351,7 @@ int loopModeTone() {
 
 		if (GPIO_digitalRead(SW3_PIN)) {
 			// printf("SW3: Down\n");
-			if (midiNoteNum <= -4096) { /// 周波数が 0 以下にならないように制御
+			if (midiNoteNum <= -1024) { /// 周波数が 2 以下にならないように制御
 				;
 			} else if (midiNoteNum < 0) {
 				midiNoteNum *= 2;
