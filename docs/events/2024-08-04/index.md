@@ -4,5 +4,5 @@
 
 ## 説明書
 https://docs.google.com/document/d/1sSZhSKSC-4plJ0KE5L4aG0ssfCy5kGWXfLFpL6DbHqM/edit
-## Links
+## イベントサイト 
 - [なつやすみこども科学実験教室2024 - connpass](https://openforce.connpass.com/event/326569/)
