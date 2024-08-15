@@ -19,7 +19,9 @@
 ### こわれちゃったよ!
 
 「OpenHardTerrace」という Discord サーバでサポートしています。
-https://discord.gg/9UTNdtSrdX
+
+[https://discord.gg/9UTNdtSrdX](https://discord.gg/9UTNdtSrdXa)
+
 こちらに参加後、ご連絡ください。
 
 あらかじめ、 Discord のアカウントの用意が必要です。 
@@ -33,7 +35,8 @@ Discord へのアクセスが難しい場合は、以下の住所まではがき
 
 ### より知りたいとき
 
-技術的な設計情報などは、 GitHub で管理しています。https://github.com/AKBONE/ch32v003freqcounter
+技術的な設計情報などは、 GitHub で管理しています。
+[https://github.com/AKBONE/ch32v003freqcounter](https://github.com/AKBONE/ch32v003freqcounter)
 また、「こわれちゃったよ」と同じ Discord サーバーで開発をしています。興味があればご参加ください。
 
 
