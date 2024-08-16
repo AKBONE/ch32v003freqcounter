@@ -18,8 +18,8 @@
 #define SSD1306_128X64
 #define SCALE 3
 
-//#define GPIO_ADC_MUX_DELAY 100
-//#define GPIO_ADC_sampletime GPIO_ADC_sampletime_43cy
+#define GPIO_ADC_MUX_DELAY 100
+#define GPIO_ADC_sampletime GPIO_ADC_sampletime_43cy
 #include "ch32v003_GPIO_branchless.h"
 #include "ssd1306_spi.h"
 #include "ssd1306.h"
