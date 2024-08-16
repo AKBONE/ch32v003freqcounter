@@ -43,7 +43,7 @@ int8_t vImag[SAMPLES];
 // function prototype (declaration), definition in "ch32v003fun.c"
 extern "C" int mini_snprintf(char* buffer, unsigned int buffer_len, const char *fmt, ...);
 char title1[] = "FrequencyCounter";
-char title2[] = "   Version 1.1  ";
+char title2[] = "  Version 1.1.1 ";
 
 
 void setup()
