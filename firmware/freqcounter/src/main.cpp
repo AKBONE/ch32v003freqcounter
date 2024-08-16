@@ -1,5 +1,5 @@
 //
-//	freqcounter Ver 1.1
+//	freqcounter Ver 1.1.1
 //
 //  2024.07.31 New Create
 //
