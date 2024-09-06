@@ -1,5 +1,5 @@
 //
-//	freqcounter Ver 1.1
+//	freqcounter Ver 1.1.1
 //
 //  2024.07.31 New Create
 //
@@ -18,8 +18,8 @@
 #define SSD1306_128X64
 #define SCALE 3
 
-//#define GPIO_ADC_MUX_DELAY 100
-//#define GPIO_ADC_sampletime GPIO_ADC_sampletime_43cy
+#define GPIO_ADC_MUX_DELAY 100
+#define GPIO_ADC_sampletime GPIO_ADC_sampletime_43cy
 #include "ch32v003_GPIO_branchless.h"
 #include "ssd1306_spi.h"
 #include "ssd1306.h"
@@ -43,7 +43,7 @@ int8_t vImag[SAMPLES];
 // function prototype (declaration), definition in "ch32v003fun.c"
 extern "C" int mini_snprintf(char* buffer, unsigned int buffer_len, const char *fmt, ...);
 char title1[] = "FrequencyCounter";
-char title2[] = "   Version 1.1  ";
+char title2[] = "  Version 1.1.1 ";
 
 
 void setup()
@@ -141,10 +141,17 @@ uint8_t showInitMenu() {
 	while(1) {
 		ssd1306_setbuf(0);	// Clear Screen
 		ssd1306_drawstr_sz(0, 0, "30-3000Hz", !(mode == 0), fontsize_8x8);
-		drawWaveIcon0(0, 13 + 3, !(mode == 1)); /// ~
-		drawWaveIcon1(8, 26 - 3, !(mode == 1)); /// ~
-		drawWaveIcon0(16, 13 + 3, !(mode == 1)); /// ~
-		drawWaveIcon1(24, 26 - 3, !(mode == 1)); /// ~
+
+		/**
+		 * ~ (Real time)
+		 * margin-top = 3 = floor(((26 - 5) - (16 - 2)) / 2)
+		 */
+		ssd1306_fillRect(0, (13 + 3), 8 * 4, (8 - 1) * 2, mode == 1);
+		drawWaveIcon0(0, (13 + 3), !(mode == 1));
+		drawWaveIcon1(8, (13 + 3) + 8 - 2, !(mode == 1));
+		drawWaveIcon0(16, (13 + 3), !(mode == 1));
+		drawWaveIcon1(24, (13 + 3) + 8 - 2, !(mode == 1));
+
 		drawNoteIcon(0, 39, !(mode == 2)); /// ♪
 		// ssd1306_drawstr_sz(0, 13, "900-1100Hz", !(mode == 3), fontsize_8x8);
 		ssd1306_drawstr_sz(0, 52, "QR code", !(mode == 3), fontsize_8x8);
