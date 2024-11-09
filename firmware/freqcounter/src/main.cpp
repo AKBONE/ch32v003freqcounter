@@ -1,7 +1,8 @@
 //
-//	freqcounter Ver 1.1.1
+//	freqcounter Ver 1.1.2
 //
 //  2024.07.31 New Create
+//	2024.11.09 add milisx6() fuction
 //
 #include <stdio.h>
 #include <stdlib.h> 
@@ -10,6 +11,7 @@
 #include "ch32v003fun.h"
 
 #define micros() (SysTick->CNT / DELAY_US_TIME)
+#define microsx6() (SysTick->CNT)
 #define millis() (SysTick->CNT / DELAY_MS_TIME)
 
 // what type of OLED - uncomment just one
@@ -43,7 +45,7 @@ int8_t vImag[SAMPLES];
 // function prototype (declaration), definition in "ch32v003fun.c"
 extern "C" int mini_snprintf(char* buffer, unsigned int buffer_len, const char *fmt, ...);
 char title1[] = "FrequencyCounter";
-char title2[] = "  Version 1.1.1 ";
+char title2[] = "  Version 1.1.2 ";
 
 
 void setup()
@@ -203,7 +205,8 @@ void setupModeFreqCounter0()
     // 各ピンの設定
     GPIO_pinMode(ADC_PIN, GPIO_pinMode_I_analog, GPIO_Speed_10MHz);
 	GPIO_ADCinit();
-	sampling_period_us = 1000000 / SAMPLING_FREQUENCY;
+//	sampling_period_us = 1000000 / SAMPLING_FREQUENCY;
+	sampling_period_us = 1000000 / SAMPLING_FREQUENCY * 6;
 }
 
 int loopModeFreqCounter0() {
@@ -214,11 +217,11 @@ int loopModeFreqCounter0() {
 		uint8_t  val = 0;
 		ssd1306_setbuf(0);	// Clear Screen
 		for (int i = 0; i < SAMPLES; i++) {
-			unsigned long t = micros();
+			unsigned long t = microsx6();
 			val = (uint8_t)(GPIO_analogRead(GPIO_Ain4_D3) >> 2);
 			ave += val;
 			vImag[i] = val;
-			while ((micros() - t) < sampling_period_us);
+			while ((microsx6() - t) < sampling_period_us);
 		}
 		ave = ave / SAMPLES;
 		//printf("ave = %d\n", ave);
